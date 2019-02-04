@@ -358,7 +358,7 @@ H_trim <- 0.2
 
 no_of_ts <- length(rearranged_M4)
 no_of_models <- 14  # pmontman's 9 base models, naive_2, pmontman's combination, 
-                    # simple mean, median forecast, trimmed mean, and proposed screened combination.
+                    # simple mean, trimmed mean, and proposed screened combination.
 
 smape_df <- as.data.frame(matrix(NA, no_of_ts, no_of_models))
 colnames(smape_df) <- c('arima', 'ets', 'nnetar', 'tbats', 'stlm', 'rw', 
