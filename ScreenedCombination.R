@@ -29,9 +29,9 @@ library(M4comp2018)  # where the time series data themselves are
 library(forecast)
 
 
-# -------------------
-# Performance metrics
-# -------------------
+# --------------------------------
+# Evaluation metrics and benchmark
+# --------------------------------
 
 smape_cal <- function(outsample, forecasts){
   # Used to estimate sMAPE
@@ -242,17 +242,22 @@ h_len <- 414
 # New order: Y, Q, M, W, D, H
 series_types <- c('Y', 'Q', 'M', 'W', 'D', 'H')
 
-# Some series have problematic MASEs: either NA or Inf.
-which(is.na(valid_mase_df))  
-# 12146  21168  97444 112146 121168 197444 312146 321168 397444 412146 421168 497444 512146 521168
-# 597444 612146 621168 697444 712146 721168 797444 812146 821168 897444 912146 921168 997444
+# Some series have problematic MASEs: either NaN or Inf. It's all the same problem, no change in the smaller training
+# set (the larger training set minus the validation set).
+which(is.na(valid_mase_df$ets))
+# Three series have MASE  = NaN.
+#  Y12146 Y21168 D2085
+#   12146  21168  97444
 which(is.infinite(valid_mase_df$naive_2))  
-# 28619
-bad_index <- 12146
-rearranged_M4[bad_index] 
-valid_mase_df[bad_index, ]
-naive_2_forecasts <- naive_2(rearranged_valid_M4[[bad_index]]$x, rearranged_valid_M4[[bad_index]]$h)
-mean(mase_cal(rearranged_valid_M4[[bad_index]]$x, rearranged_valid_M4[[bad_index]]$xx, naive_2_forecasts))
+# One series has MASE = Inf.
+#   Q5619
+#   28619
+bad_index <- 28619
+rearranged_valid_M4[[bad_index]]$st
+rearranged_valid_M4[[bad_index]]$x
+rearranged_valid_M4[[bad_index]]$xx
+(naive_2_forecasts <- naive_2(rearranged_valid_M4[[bad_index]]$x, rearranged_valid_M4[[bad_index]]$h))
+mase_cal(rearranged_valid_M4[[bad_index]]$x, rearranged_valid_M4[[bad_index]]$xx, naive_2_forecasts)
 
 # Remove series with problematic MASEs. 
 bad_indices <- c(which(is.na(valid_mase_df)), which(is.infinite(valid_mase_df$naive_2)))
@@ -291,7 +296,6 @@ starting_indices <- 1:100000
 indices <- setdiff(starting_indices, bad_indices) 
 valid_OWA_df[7, ] <- (apply(valid_smape_df[indices, ], 2, mean, trim=trim)/mean(valid_smape_df$naive_2[indices], trim=trim) 
                       + apply(valid_mase_df[indices, ], 2, mean, trim=trim)/mean(valid_mase_df$naive_2[indices], trim=trim))/2
-
 
 t(valid_OWA_df)  # L&W paper's Table 1.
 # Apply expertise screen. 
