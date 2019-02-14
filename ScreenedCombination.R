@@ -252,7 +252,7 @@ which(is.infinite(valid_mase_df$naive_2))
 # One series has MASE = Inf.
 #   Q5619
 #   28619
-bad_index <- 28619
+bad_index <- 97444
 rearranged_valid_M4[[bad_index]]$st
 rearranged_valid_M4[[bad_index]]$x
 rearranged_valid_M4[[bad_index]]$xx
@@ -261,6 +261,22 @@ mase_cal(rearranged_valid_M4[[bad_index]]$x, rearranged_valid_M4[[bad_index]]$xx
 
 # Remove series with problematic MASEs. 
 bad_indices <- c(which(is.na(valid_mase_df)), which(is.infinite(valid_mase_df$naive_2)))
+
+# Other series. These series produce zero sOWA, which is why we propose MsOWA, rather than a geometric mean of sOWA_i's.
+valid_sOWA_df <- as.data.frame(matrix(NA, 7, 10))
+colnames(valid_sOWA_df) <- c('arima', 'ets', 'nnetar', 'tbats', 'stlm', 'rw', 
+                            'theta', 'naive', 'snaive', 'naive2')
+for (i in 1:100000) {
+  valid_sOWA_df[i, ] = (valid_smape_df[i, ] / valid_smape_df$naive_2[i] + valid_mase_df[i, ] / valid_mase_df$naive_2[i]) / 2
+}
+
+which(valid_sOWA_df$ets == 0)
+example_index <- 28662
+rearranged_valid_M4[[example_index]]$st
+rearranged_valid_M4[[example_index]]$x
+rearranged_valid_M4[[example_index]]$xx
+rearranged_M4[[example_index]]$x
+rearranged_M4[[example_index]]$xx
 
 # Run a loop to calculate: 
 # (1) the OWA by base model and series type.
